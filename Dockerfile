@@ -5,25 +5,29 @@ ENV USER=root
 ENV VNC_PASSWORD=qwer1234
 ENV DISPLAY=:0
 
-EXPOSE 6080 5900
+EXPOSE 6080
 
+# Installation von XFCE und Firefox
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    sudo curl nano neofetch \
-    tigervnc-standalone-server tigervnc-common tigervnc-tools dbus-x11 xauth \
-    gnome-session gnome-session-flashback gnome-terminal gnome-settings-daemon metacity nautilus epiphany-browser \
+    sudo gnupg curl wget nano neofetch \
+    tigervnc-standalone-server tigervnc-common tigervnc-tools \
+    xfce4 xfce4-goodies dbus-x11 xauth \
     novnc websockify python3 openssl
+
+RUN install -d -m 0755 /etc/apt/keyrings && \
+    wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O /etc/apt/keyrings/packages.mozilla.org.asc && \
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | tee /etc/apt/sources.list.d/mozilla.list > /dev/null && \
+    echo 'Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000' | tee /etc/apt/preferences.d/mozilla && \
+    apt-get update && apt-get install -y firefox
 
 RUN mkdir -p /root/.vnc && \
     echo "$VNC_PASSWORD" | vncpasswd -f > /root/.vnc/passwd && \
     chmod 600 /root/.vnc/passwd && \
-    touch /root/.Xauthority && \
-    dbus-uuidgen > /var/lib/dbus/machine-id
+    touch /root/.Xauthority
 
 CMD bash -c " \
     openssl req -new -x509 -days 365 -nodes \
     -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
     -out /root/self.pem -keyout /root/self.pem && \
-    dbus-daemon --session --address=unix:path=/var/run/dbus/system_bus_socket --fork && \
-    vncserver :0 -geometry 1280x720 -depth 24 -localhost no \
-    -xstartup '/usr/bin/gnome-session --session=gnome-flashback-metacity' && \
+    vncserver :0 -geometry 1280x720 -depth 24 -localhost no -xstartup startxfce4 && \
     websockify --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5900"
