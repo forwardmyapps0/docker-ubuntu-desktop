@@ -6,7 +6,7 @@ RUN apt update -y && apt install --no-install-recommends -y \
     sudo curl wget xterm init systemd nano net-tools neofetch git tzdata unzip zip screen htop nload openjdk-21-jdk openjdk-8-jdk python3 python3-pip \
     xfce4 xfce4-goodies tigervnc-standalone-server tigervnc-tools novnc websockify \
     dbus-x11 x11-utils x11-xserver-utils x11-apps software-properties-common \
-    gnupg ca-certificates xubuntu-icon-theme && \
+    gnupg ca-certificates xubuntu-icon-theme openssl && \
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
     apt install -y ./google-chrome-stable_current_amd64.deb && \
     rm google-chrome-stable_current_amd64.deb && \
@@ -17,7 +17,7 @@ RUN touch /root/.Xauthority
 EXPOSE 6080
 EXPOSE 8080
 
-CMD bash -c ' \
+ENTRYPOINT bash -c ' \
     RANDOM_PASS=$(cat /dev/urandom | tr -dc "a-zA-Z0-9" | fold -w 16 | head -n 1); \
     echo "========================================="; \
     echo "DEIN VNC PASSWORT LAUTET: $RANDOM_PASS"; \
@@ -25,7 +25,10 @@ CMD bash -c ' \
     mkdir -p /root/.vnc && \
     echo "$RANDOM_PASS" | vncpasswd -f > /root/.vnc/passwd && \
     chmod 600 /root/.vnc/passwd && \
+    exec "$@"'
+
+CMD bash -c " \
     vncserver -localhost no -SecurityTypes VncAuth -geometry 1024x768 :1 && \
-    openssl req -new -subj "/C=DE/ST=None/L=None/O=None/CN=localhost" -x509 -days 365 -nodes -out /root/self.pem -keyout /root/self.pem && \
+    openssl req -new -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' -x509 -days 365 -nodes -out /root/self.pem -keyout /root/self.pem && \
     websockify -D --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5901 && \
-    tail -f /dev/null'
+    tail -f /dev/null"
