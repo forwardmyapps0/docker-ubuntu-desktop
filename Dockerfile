@@ -20,5 +20,5 @@ CMD bash -c " \
     openssl req -new -x509 -days 365 -nodes \
     -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
     -out /root/self.pem -keyout /root/self.pem && \
-    vncserver :1 -geometry 1280x720 -depth 24 -localhost no && \
-    websockify --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5901"
+    vncserver :0 -geometry 1280x720 -depth 24 -localhost no && \
+    websockify --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5900"
