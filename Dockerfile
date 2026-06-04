@@ -3,42 +3,31 @@ FROM --platform=linux/amd64 ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Pakete installieren
-RUN apt-get update -y && apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-    curl gnupg wget xterm nano net-tools neofetch git tzdata unzip zip screen htop nload \
-    openjdk-21-jdk openjdk-8-jdk python3 python3-pip \
-    xfce4 xfce4-goodies tigervnc-standalone-server tigervnc-tools novnc websockify \
-    dbus-x11 x11-utils x11-xserver-utils x11-apps software-properties-common \
-    ca-certificates xubuntu-icon-theme openssl lsb-release && \
-    # Cloudflared Installation
-    mkdir -p --mode=0755 /usr/share/keyrings && \
-    curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null && \
-    echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflared.list && \
-    # Playit.gg Installation
-    curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null && \
-    echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | tee /etc/apt/sources.list.d/playit-cloud.list && \
-    # Updates und Installation
-    apt-get update && apt-get install -y cloudflared playit && \
-    # Filebrowser Installation
-    curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash && \
-    # Chrome Installation
-    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    apt-get install -y ./google-chrome-stable_current_amd64.deb && \
-    rm google-chrome-stable_current_amd64.deb && \
-    # Aufräumen
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    qemu-system-x86 qemu-utils wget novnc websockify python3 curl bash screen \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Konfigurationen
-RUN touch /root/.Xauthority
+# Filebrowser Installation
+RUN curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
 
-EXPOSE 6080
+# Arbeitsverzeichnis & ISO-Download (Platzhalter)
+WORKDIR /root/vm
+RUN wget -O ubuntu.iso https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso
+
+# Ports freigeben (6080 für noVNC, 80 für Filebrowser)
+EXPOSE 6080 80
 
 # Start-Logik
+# 1. QEMU startet im Hintergrund
+# 2. websockify verbindet VNC mit Port 6080
+# 3. Filebrowser startet in einem screen auf Port 80
 CMD bash -c " \
-    mkdir -p /root/.vnc; \
-    echo 'SecurityTypes=None' > /root/.vnc/config; \
-    vncserver -localhost no -geometry 1024x768 :1; \
-    openssl req -new -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' -x509 -days 365 -nodes -out /root/self.pem -keyout /root/self.pem; \
-    websockify -D --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5901; \
+    qemu-system-x86_64 \
+    -m 2G -smp 2 \
+    -cdrom /root/vm/ubuntu.iso \
+    -vnc :0 \
+    -netdev user,id=net0 -device e1000,netdev=net0 \
+    -monitor stdio & \
+    websockify --web=/usr/share/novnc/ 6080 localhost:5900 & \
+    screen -dmS filebrowser filebrowser -r /root/vm -p 80; \
     tail -f /dev/null"
