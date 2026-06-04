@@ -2,18 +2,18 @@ FROM --platform=linux/amd64 ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 0. System aktualisieren
-RUN apt update -y && apt upgrade -y
-
-# 1. Installation aller Pakete (ohne systemd, mit playit vorab)
-RUN apt install -y curl gnupg && \
-    # Installation von playit
-    curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null && \
-    curl -SsL -o /etc/apt/sources.list.d/playit.list https://playit-cloud.github.io/ppa/playit.list && \
-    apt update && apt install -y playit && \
+# 1. System aktualisieren & Pakete installieren
+RUN apt update -y && apt upgrade -y && \
+    apt install -y curl gnupg && \
+    # Playit Installation
+    curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor > /etc/apt/trusted.gpg.d/playit.gpg && \
+    echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" > /etc/apt/sources.list.d/playit-cloud.list && \
+    apt update && \
+    apt install -y playit && \
     # Restliche Pakete
     apt install --no-install-recommends -y \
-    sudo wget xterm nano net-tools neofetch git tzdata unzip zip screen htop nload openjdk-21-jdk openjdk-8-jdk python3 python3-pip \
+    wget xterm nano net-tools neofetch git tzdata unzip zip screen htop nload \
+    openjdk-21-jdk openjdk-8-jdk python3 python3-pip \
     xfce4 xfce4-goodies tigervnc-standalone-server tigervnc-tools novnc websockify \
     dbus-x11 x11-utils x11-xserver-utils x11-apps software-properties-common \
     ca-certificates xubuntu-icon-theme openssl openssh-server && \
