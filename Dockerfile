@@ -11,9 +11,8 @@ EXPOSE 6080 5900
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo curl nano neofetch \
     tigervnc-standalone-server tigervnc-common tigervnc-tools \
-    gnome-session gnome-session-flashback gnome-terminal gnome-settings-daemon \
-    metacity nautilus epiphany-browser dbus-x11 xauth novnc websockify python3 openssl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    gnome-session gnome-session-flashback gnome-terminal gnome-settings-daemon metacity nautilus epiphany-browser \
+    dbus-x11 xauth novnc websockify python3 openssl
 
 # VNC & D-Bus Setup
 RUN mkdir -p /root/.vnc && \
