@@ -1,48 +1,45 @@
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:24.04
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
 
-WORKDIR /opt/webvirtcloud
+# 0. System aktualisieren
+RUN apt update -y && apt upgrade -y
 
-# Installation der Abhängigkeiten und Cleanup in einem Schritt
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-dev \
-    python3-venv \
-    python3-libvirt \
-    python3-lxml \
-    libsasl2-modules \
-    gcc \
-    libc6-dev \
-    libvirt-dev \
-    iproute2 \
-    nginx \
-    supervisor \
-    git \
-    openssh-client \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# 1. Installation aller Pakete (ohne systemd, mit playit vorab)
+RUN apt install -y curl gnupg && \
+    # Installation von playit
+    curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null && \
+    curl -SsL -o /etc/apt/sources.list.d/playit.list https://playit-cloud.github.io/ppa/playit.list && \
+    apt update && apt install -y playit && \
+    # Restliche Pakete
+    apt install --no-install-recommends -y \
+    sudo wget xterm nano net-tools neofetch git tzdata unzip zip screen htop nload openjdk-21-jdk openjdk-8-jdk python3 python3-pip \
+    xfce4 xfce4-goodies tigervnc-standalone-server tigervnc-tools novnc websockify \
+    dbus-x11 x11-utils x11-xserver-utils x11-apps software-properties-common \
+    ca-certificates xubuntu-icon-theme openssl openssh-server && \
+    # Chrome Installation
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt install -y ./google-chrome-stable_current_amd64.deb && \
+    rm google-chrome-stable_current_amd64.deb && \
+    apt clean && rm -rf /var/lib/apt/lists/*
 
-# Webvirtcloud vorbereiten
-RUN curl -L https://github.com/retspen/webvirtcloud/tarball/master | tar xzC /opt/ --strip-components=1 \
-    && python3 -m venv /opt/venv \
-    && /opt/venv/bin/pip install --no-cache-dir -r /opt/webvirtcloud/conf/requirements.txt \
-    && mkdir -p /run/supervisor/ /var/log/webvirtcloud/ \
-    && cp /opt/webvirtcloud/conf/nginx/webvirtcloud.conf /etc/nginx/conf.d/webvirtcloud.conf \
-    && sed -i 's/\/srv\/webvirtcloud/\/opt\/webvirtcloud/' /etc/nginx/conf.d/webvirtcloud.conf \
-    && ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
+# 2. Vorbereitung der Konfigurationen
+RUN touch /root/.Xauthority && \
+    mkdir -p /var/run/sshd && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
-# SSH Config
-RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh \
-    && echo "Host *\n  StrictHostKeyChecking no" > /root/.ssh/config
+# 3. Ports freigeben
+EXPOSE 22 6080 8080
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-COPY conf/supervisord.ini /etc/supervisor/conf.d/webvirtcloud.conf
-
-EXPOSE 80 6080
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+# 4. Start-Logik
+CMD bash -c " \
+    echo 'root:password' | chpasswd; \
+    mkdir -p /root/.vnc; \
+    echo 'SecurityTypes=None' > /root/.vnc/config; \
+    /usr/sbin/sshd; \
+    vncserver -localhost no -geometry 1024x768 :1; \
+    openssl req -new -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' -x509 -days 365 -nodes -out /root/self.pem -keyout /root/self.pem; \
+    websockify -D --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5901; \
+    echo 'System gestartet. Playit, SSH und VNC (Port 6080) bereit.'; \
+    tail -f /dev/null"
