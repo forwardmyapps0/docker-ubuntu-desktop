@@ -2,13 +2,14 @@ FROM --platform=linux/amd64 ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV USER=root
-ENV VNC_PASSWORD=pass1234
+ENV VNC_PASSWORD=qwer1234
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tigervnc-standalone-server tigervnc-common tigervnc-tools \
     xfce4 xfce4-goodies dbus-x11 xauth \
     novnc websockify python3 openssl
 
+# Vorbereitung: Passwort-Hashing und System-Konfiguration beim Bauen
 RUN mkdir -p /root/.vnc && \
     echo "$VNC_PASSWORD" | vncpasswd -f > /root/.vnc/passwd && \
     chmod 600 /root/.vnc/passwd && \
@@ -17,6 +18,7 @@ RUN mkdir -p /root/.vnc && \
 
 EXPOSE 6080
 
+# Start-Befehl für Display :0
 CMD bash -c " \
     openssl req -new -x509 -days 365 -nodes \
     -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
