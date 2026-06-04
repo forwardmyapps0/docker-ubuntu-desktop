@@ -1,0 +1,23 @@
+services:
+  # WebVirtCloud Management Oberfläche
+  webvirtcloud:
+    image: retspen/webvirtcloud:latest
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      - DJANGO_SECRET_KEY=dein-geheimes-passwort
+      - DATABASE_URL=sqlite:///db.sqlite3
+    volumes:
+      - ./data:/var/www/webvirtcloud/data
+      # WICHTIG: Verbindet den Manager mit dem KVM-Host
+      - /var/run/libvirt/libvirt-sock:/var/run/libvirt/libvirt-sock
+
+  # Der noVNC-Proxy (wird von WebVirtCloud gesteuert)
+  novnc-proxy:
+    image: retspen/webvirtcloud-novnc:latest
+    restart: always
+    ports:
+      - "6080:6080"
+    depends_on:
+      - webvirtcloud
