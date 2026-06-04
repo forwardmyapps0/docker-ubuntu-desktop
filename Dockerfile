@@ -1,5 +1,8 @@
 FROM ubuntu:22.04
 
+LABEL maintainer="Daniel Gehrlein <d.gehrlein@outlook.com>"
+LABEL version=0.1
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tmp
@@ -36,11 +39,10 @@ RUN curl -L https://github.com/retspen/webvirtcloud/tarball/master | tar xzC /op
 RUN mkdir -p /root/.ssh \
    && echo "Host *\n  StrictHostKeyChecking no" >> /root/.ssh/config
 
-VOLUME /opt/webvirtcloud
+# WICHTIG: VOLUME entfernt für Railway Kompatibilität
 
 ADD entrypoint.sh /opt/entrypoint.sh
 RUN chmod +x /opt/entrypoint.sh
-# Stelle sicher, dass die supervisord.ini angepasst ist für Ubuntu Pfade (/etc/supervisor/conf.d/)
 ADD conf/supervisord.ini /etc/supervisor/conf.d/webvirtcloud.conf
 
 WORKDIR /opt
