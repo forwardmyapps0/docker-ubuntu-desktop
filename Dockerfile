@@ -5,9 +5,8 @@ ENV USER=root
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tigervnc-standalone-server tigervnc-common tigervnc-tools \
-    xfce4 xfce4-goodies \
-    novnc websockify python3 openssl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    xfce4 xfce4-goodies dbus-x11 xauth \
+    novnc websockify python3 openssl
 
 RUN mkdir -p /root/.vnc
 RUN echo "password" | vncpasswd -f > /root/.vnc/passwd && chmod 600 /root/.vnc/passwd
@@ -18,6 +17,7 @@ CMD bash -c " \
     openssl req -new -x509 -days 365 -nodes \
     -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
     -out /root/self.pem -keyout /root/self.pem && \
-    mkdir -p /root/.config/xfce4 && \
-    vncserver :0 -geometry 1280x720 -depth 24 -localhost no && \
-    websockify --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5900"
+    touch /root/.Xauthority && \
+    dbus-uuidgen > /var/lib/dbus/machine-id && \
+    vncserver :1 -geometry 1280x720 -depth 24 -localhost no && \
+    websockify --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5901"
