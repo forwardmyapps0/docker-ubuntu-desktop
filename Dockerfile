@@ -7,7 +7,6 @@ ENV DISPLAY=:0
 
 EXPOSE 6080
 
-# Installation von XFCE und Firefox
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo gnupg curl wget nano neofetch \
     tigervnc-standalone-server tigervnc-common tigervnc-tools \
