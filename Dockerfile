@@ -10,18 +10,16 @@ EXPOSE 6080 5900
 # GNOME Flashback, Browser und notwendige Tools installieren
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo curl nano neofetch \
-    tigervnc-standalone-server tigervnc-common tigervnc-tools \
+    tigervnc-standalone-server tigervnc-common tigervnc-tools dbus-x11 xauth \
     gnome-session gnome-session-flashback gnome-terminal gnome-settings-daemon metacity nautilus epiphany-browser \
     dbus-x11 xauth novnc websockify python3 openssl
 
-# VNC & D-Bus Setup
 RUN mkdir -p /root/.vnc && \
     echo "$VNC_PASSWORD" | vncpasswd -f > /root/.vnc/passwd && \
     chmod 600 /root/.vnc/passwd && \
     touch /root/.Xauthority && \
     dbus-uuidgen > /var/lib/dbus/machine-id
 
-# Start-Skript
 CMD bash -c " \
     openssl req -new -x509 -days 365 -nodes \
     -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
