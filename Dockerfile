@@ -7,7 +7,6 @@ ENV DISPLAY=:0
 
 EXPOSE 6080 5900
 
-# GNOME Flashback, Browser und notwendige Tools installieren
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo curl nano neofetch \
     tigervnc-standalone-server tigervnc-common tigervnc-tools dbus-x11 xauth \
