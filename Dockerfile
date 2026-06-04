@@ -20,6 +20,8 @@ RUN mkdir -p /var/run/sshd && \
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 22 6080 8080
+EXPOSE 22  
+EXPOSE 6080
+EXPOSE 8080
 
 ENTRYPOINT ["/entrypoint.sh"]
