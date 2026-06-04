@@ -9,7 +9,7 @@ EXPOSE 6080
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo gnupg curl wget nano neofetch \
-    tigervnc-standalone-server tigervnc-common tigervnc-tools \
+    tigervnc-standalone-server tigervnc-common tigervnc-tools tigervnc-viewer \
     xfce4 xfce4-goodies dbus-x11 xauth \
     novnc websockify python3 openssl
 
