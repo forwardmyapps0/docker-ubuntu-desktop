@@ -3,7 +3,7 @@ FROM --platform=linux/amd64 ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update -y && apt install --no-install-recommends -y \
-    sudo curl wget xterm init systemd nano net-tools neofetch git tzdata unzip zip screen openjdk-21-jdk \
+    sudo curl wget xterm init systemd nano net-tools neofetch git tzdata unzip zip screen htop nload openjdk-21-jdk \
     xfce4 xfce4-goodies tigervnc-standalone-server novnc websockify \
     dbus-x11 x11-utils x11-xserver-utils x11-apps software-properties-common \
     gnupg ca-certificates xubuntu-icon-theme openssl && \
