@@ -2,9 +2,10 @@ FROM --platform=linux/amd64 ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Installation aller notwendigen Pakete inklusive tigervnc-tools
 RUN apt update -y && apt install --no-install-recommends -y \
     sudo curl wget xterm init systemd nano net-tools neofetch git tzdata unzip zip screen htop nload openjdk-21-jdk openjdk-8-jdk \
-    xfce4 xfce4-goodies tigervnc-standalone-server novnc websockify \
+    xfce4 xfce4-goodies tigervnc-standalone-server tigervnc-tools novnc websockify \
     dbus-x11 x11-utils x11-xserver-utils x11-apps software-properties-common \
     gnupg ca-certificates xubuntu-icon-theme openssl && \
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
@@ -17,6 +18,7 @@ RUN touch /root/.Xauthority
 EXPOSE 6080
 EXPOSE 8080
 
+# CMD wurde angepasst, um den VNC-Passwort-Prozess robuster zu machen
 CMD bash -c "mkdir -p /root/.vnc && \
     echo \"$VNC_PASSWORD\" | vncpasswd -f > /root/.vnc/passwd && \
     chmod 600 /root/.vnc/passwd && \
