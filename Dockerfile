@@ -17,8 +17,13 @@ RUN touch /root/.Xauthority
 EXPOSE 6080
 EXPOSE 8080
 
-CMD bash -c "mkdir -p /root/.vnc && \
-    echo \"$VNC_PASSWORD\" | vncpasswd -f > /root/.vnc/passwd && \
+CMD bash -c " \
+    RANDOM_PASS=$(openssl rand -base64 12); \
+    echo '========================================='; \
+    echo 'DEIN VNC PASSWORT LAUTET: ' $RANDOM_PASS; \
+    echo '========================================='; \
+    mkdir -p /root/.vnc && \
+    echo \"$RANDOM_PASS\" | vncpasswd -f > /root/.vnc/passwd && \
     chmod 600 /root/.vnc/passwd && \
     vncserver -localhost no -SecurityTypes VncAuth -geometry 1024x768 :1 && \
     openssl req -new -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' -x509 -days 365 -nodes -out /root/self.pem -keyout /root/self.pem && \
