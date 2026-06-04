@@ -1,22 +1,32 @@
 FROM --platform=linux/amd64 ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV USER=root
+ENV VNC_PASSWORD=qwer1234
+ENV DISPLAY=:0
 
 EXPOSE 6080
 
-# 1. Pakete installieren
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    qemu-system-x86 qemu-utils \
-    novnc websockify python3 openssl \
-    curl wget \
-    && rm -rf /var/lib/apt/lists/*
+    sudo gnupg curl wget nano neofetch \
+    tigervnc-standalone-server tigervnc-common tigervnc-tools \
+    xfce4 xfce4-goodies dbus-x11 xauth \
+    novnc websockify python3 openssl
 
-# 2. ISO und Festplatte vorbereiten
-RUN wget -q https://releases.ubuntu.com/24.04/ubuntu-24.04.4-live-server-amd64.iso -O /root/ubuntu.iso && \
-    qemu-img create -f qcow2 /root/vm_disk.qcow2 30G
+RUN install -d -m 0755 /etc/apt/keyrings && \
+    wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O /etc/apt/keyrings/packages.mozilla.org.asc && \
+    echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | tee /etc/apt/sources.list.d/mozilla.list > /dev/null && \
+    echo 'Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000' | tee /etc/apt/preferences.d/mozilla && \
+    apt-get update && apt-get install -y firefox
 
-# 3. Zertifikat und QEMU direkt im CMD ausführen
-# Wir nutzen && um sicherzustellen, dass alles nacheinander startet
-CMD openssl req -new -x509 -days 365 -nodes -subj "/C=DE/ST=None/L=None/O=None/CN=localhost" -out /root/self.pem -keyout /root/self.pem && \
-    websockify --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5900 & \
-    qemu-system-x86_64 -m 4G -smp 2 -hda /root/vm_disk.qcow2 -cdrom /root/ubuntu.iso -boot d -net nic -net user -vnc localhost:0
+RUN mkdir -p /root/.vnc && \
+    echo "$VNC_PASSWORD" | vncpasswd -f > /root/.vnc/passwd && \
+    chmod 600 /root/.vnc/passwd && \
+    touch /root/.Xauthority
+
+CMD bash -c " \
+    openssl req -new -x509 -days 365 -nodes \
+    -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
+    -out /root/self.pem -keyout /root/self.pem && \
+    vncserver :0 -geometry 1280x720 -depth 24 -localhost no -xstartup startxfce4 && \
+    websockify --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5900"
