@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libvirt-dev \
     libxml2-dev \
     gcc \
-    python3-libvirt \
+    g++ \
+    pkg-config \
+    build-essential \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 2. WebVirtCloud klonen
