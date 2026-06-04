@@ -4,21 +4,20 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV USER=root
 ENV VNC_PASSWORD=qwer1234
 
+EXPOSE 6080
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo curl nano screen neofetch tigervnc-standalone-server tigervnc-common tigervnc-tools \
     xfce4 xfce4-goodies dbus-x11 xauth \
-    novnc websockify python3 openssl
+    novnc websockify python3 openssl \
+    chromium-browser
 
-# Vorbereitung: Passwort-Hashing und System-Konfiguration beim Bauen
 RUN mkdir -p /root/.vnc && \
     echo "$VNC_PASSWORD" | vncpasswd -f > /root/.vnc/passwd && \
     chmod 600 /root/.vnc/passwd && \
     touch /root/.Xauthority && \
     dbus-uuidgen > /var/lib/dbus/machine-id
 
-EXPOSE 6080
-
-# Start-Befehl für Display :0
 CMD bash -c " \
     openssl req -new -x509 -days 365 -nodes \
     -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
