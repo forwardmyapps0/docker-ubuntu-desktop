@@ -8,8 +8,7 @@ EXPOSE 6080
 RUN apt-get update && apt-get install -y --no-install-recommends \
     qemu-system-x86 qemu-utils \
     novnc websockify python3 openssl \
-    curl wget \
-    && rm -rf /var/lib/apt/lists/*
+    curl wget
 
 # 2. ISO herunterladen
 RUN wget -q https://releases.ubuntu.com/24.04/ubuntu-24.04.4-live-server-amd64.iso -O /root/ubuntu.iso
