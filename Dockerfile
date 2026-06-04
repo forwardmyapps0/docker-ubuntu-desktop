@@ -6,14 +6,17 @@ ENV USER=root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tigervnc-standalone-server tigervnc-common tigervnc-tools \
     xfce4 xfce4-goodies dbus-x11 xauth \
-    novnc websockify python3 openssl
+    novnc websockify python3 openssl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /root/.vnc
-RUN echo "password" | vncpasswd -f > /root/.vnc/passwd && chmod 600 /root/.vnc/passwd
 
 EXPOSE 6080
 
 CMD bash -c " \
+    PASS=$(hostname) && \
+    echo \"$PASS\" | vncpasswd -f > /root/.vnc/passwd && chmod 600 /root/.vnc/passwd && \
+    echo \"VNC-Passwort ist: $PASS\" && \
     openssl req -new -x509 -days 365 -nodes \
     -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
     -out /root/self.pem -keyout /root/self.pem && \
