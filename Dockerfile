@@ -10,7 +10,7 @@ RUN apt-get update -y && apt-get upgrade -y && \
     xfce4 xfce4-goodies tigervnc-standalone-server tigervnc-tools novnc websockify \
     dbus-x11 x11-utils x11-xserver-utils x11-apps software-properties-common \
     ca-certificates xubuntu-icon-theme openssl lsb-release && \
-    # Cloudflared Installation
+    # Cloudflared Installation (korrigiert ohne sudo)
     mkdir -p --mode=0755 /usr/share/keyrings && \
     curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null && \
     echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflared.list && \
