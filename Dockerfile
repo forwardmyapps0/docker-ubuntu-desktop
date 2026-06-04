@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo curl nano neofetch \
     tigervnc-standalone-server tigervnc-common tigervnc-tools dbus-x11 xauth \
     gnome-session gnome-session-flashback gnome-terminal gnome-settings-daemon metacity nautilus epiphany-browser \
-    dbus-x11 xauth novnc websockify python3 openssl
+    novnc websockify python3 openssl
 
 RUN mkdir -p /root/.vnc && \
     echo "$VNC_PASSWORD" | vncpasswd -f > /root/.vnc/passwd && \
