@@ -5,7 +5,7 @@ ENV USER=root
 ENV VNC_PASSWORD=qwer1234
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    sudo tigervnc-standalone-server tigervnc-common tigervnc-tools \
+    sudo curl nano screen neofetch tigervnc-standalone-server tigervnc-common tigervnc-tools \
     xfce4 xfce4-goodies dbus-x11 xauth \
     novnc websockify python3 openssl
 
