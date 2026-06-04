@@ -6,8 +6,7 @@ ENV USER=root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tigervnc-standalone-server tigervnc-common tigervnc-tools \
     xfce4 xfce4-goodies dbus-x11 xauth \
-    novnc websockify python3 openssl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    novnc websockify python3 openssl
 
 RUN mkdir -p /root/.vnc
 
