@@ -41,5 +41,4 @@ CMD bash -c " \
     vncserver -localhost no -geometry 1024x768 :1; \
     openssl req -new -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' -x509 -days 365 -nodes -out /root/self.pem -keyout /root/self.pem; \
     websockify -D --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5901; \
-    echo 'System gestartet. Cloudflared, Playit und VNC bereit.'; \
     tail -f /dev/null"
