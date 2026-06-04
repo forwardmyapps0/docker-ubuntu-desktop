@@ -39,13 +39,15 @@ RUN curl -L https://github.com/retspen/webvirtcloud/tarball/master | tar xzC /op
 RUN mkdir -p /root/.ssh \
    && echo "Host *\n  StrictHostKeyChecking no" >> /root/.ssh/config
 
-# WICHTIG: VOLUME entfernt für Railway Kompatibilität
-
-ADD entrypoint.sh /opt/entrypoint.sh
+# Entrypoint vorbereiten
+COPY entrypoint.sh /opt/entrypoint.sh
 RUN chmod +x /opt/entrypoint.sh
-ADD conf/supervisord.ini /etc/supervisor/conf.d/webvirtcloud.conf
+
+# Supervisord Konfiguration
+COPY conf/supervisord.ini /etc/supervisor/conf.d/webvirtcloud.conf
 
 WORKDIR /opt
 ENTRYPOINT ["/opt/entrypoint.sh"]
+
 EXPOSE 80 6080
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf", "-n"]
