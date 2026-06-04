@@ -1,28 +1,23 @@
-# Basis-Image für WebVirtCloud
-FROM retspen/webvirtcloud:latest
+# Wir verwenden offizielles Ubuntu, das ist fast überall verfügbar
+FROM ubuntu:24.04
 
-# Als Root ausführen, um System-Tools zu installieren
-USER root
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Installation der QEMU-Engine, libvirt-Tools und Netzwerkhilfsmittel
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    qemu-kvm \
-    qemu-system-x86 \
+# Manuelle Installation von WebVirtCloud-Abhängigkeiten
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-venv \
+    git \
+    nginx \
     libvirt-daemon-system \
-    libvirt-clients \
-    bridge-utils \
-    virtinst \
-    python3-libvirt \
-    novnc \
-    websockify \
-    iputils-ping \
-    net-tools \
-    curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    qemu-kvm \
+    && apt-get clean
 
-# Rechte anpassen, damit der WebVirtCloud-User auf libvirt zugreifen darf
-RUN usermod -aG libvirt www-data
+# WebVirtCloud direkt von GitHub klonen und installieren
+RUN git clone https://github.com/retspen/webvirtcloud.git /var/www/webvirtcloud
+WORKDIR /var/www/webvirtcloud
+RUN python3 -m venv venv && \
+    ./venv/bin/pip install -r requirements.txt
 
-# Zurück zum Standard-User
-USER 1000
+# Start-Skript für den Webserver
+CMD ["./venv/bin/gunicorn", "webvirtcloud.wsgi:application", "--bind", "0.0.0.0:80"]
