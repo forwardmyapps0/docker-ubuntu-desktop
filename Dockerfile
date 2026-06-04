@@ -29,7 +29,7 @@ RUN apt-get update -y && apt-get upgrade -y && \
 RUN touch /root/.Xauthority
 
 # Ports freigeben
-EXPOSE 6080 8080
+EXPOSE 6080
 
 # Start-Logik
 CMD bash -c " \
