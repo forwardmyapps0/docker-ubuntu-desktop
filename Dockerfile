@@ -29,5 +29,5 @@ CMD bash -c " \
     -netdev user,id=net0 -device e1000,netdev=net0 \
     -monitor stdio & \
     websockify --web=/usr/share/novnc/ 6080 localhost:5900 & \
-    screen -dmS filebrowser filebrowser -r /root/vm -p 80; \
+    filebrowser -r /root/vm -p 80; \
     tail -f /dev/null"
