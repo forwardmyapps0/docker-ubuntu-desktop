@@ -33,4 +33,4 @@ CMD bash -c " \
     -monitor none & \
     \
     # websockify starten (verbindet Port 6080 mit VNC-Port 5901) \
-    websockify --web=/usr/share/novnc/ 6080 localhost:5901"
+    websockify --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5901"
