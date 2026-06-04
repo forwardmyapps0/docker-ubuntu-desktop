@@ -1,36 +1,31 @@
 FROM --platform=linux/amd64 ubuntu:24.04
 
+# Umgebungsvariablen für eine automatische Installation
 ENV DEBIAN_FRONTEND=noninteractive
+ENV USER=root
 
-# Pakete installieren (qemu-kvm hinzugefügt für bessere Performance)
+# Pakete installieren: TigerVNC, XFCE Desktop, noVNC und SSL-Tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    qemu-system-x86 qemu-utils curl ca-certificates novnc websockify python3 bash openssl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    tigervnc-standalone-server tigervnc-common \
+    xfce4 xfce4-goodies \
+    novnc websockify python3 openssl
 
-WORKDIR /root/vm
+# VNC Verzeichnis vorbereiten
+RUN mkdir -p /root/.vnc
 
-# ISO herunterladen
-RUN curl -LO https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso
+# VNC Passwort setzen (Standard: "password")
+RUN echo "password" | vncpasswd -f > /root/.vnc/passwd && chmod 600 /root/.vnc/passwd
 
-# Erstelle ein leeres Disk-Image (20GB) während des Builds oder beim Start
-RUN qemu-img create -f qcow2 /root/vm/disk.img 20G
-
+# Port 6080 für den Web-Zugriff freigeben
 EXPOSE 6080
 
+# Start-Skript
+# 1. Zertifikat erstellen (für HTTPS)
+# 2. VNC Server starten
+# 3. websockify starten, das HTTPS auf Port 6080 annimmt und an VNC weiterleitet
 CMD bash -c " \
-    # Zertifikat für noVNC erstellen \
-    openssl req -new -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' -x509 -days 365 -nodes -out /root/self.pem -keyout /root/self.pem; \
-    \
-    # QEMU im Hintergrund starten \
-    qemu-system-x86_64 \
-    -enable-kvm \
-    -m 2G -smp 2 \
-    -cdrom /root/vm/ubuntu-24.04.4-live-server-amd64.iso \
-    -drive file=/root/vm/disk.img,format=qcow2 \
-    -boot d \
-    -vnc 0.0.0.0:1 \
-    -netdev user,id=net0 -device e1000,netdev=net0 \
-    -monitor none & \
-    \
-    # websockify starten (verbindet Port 6080 mit VNC-Port 5901) \
+    openssl req -new -x509 -days 365 -nodes \
+    -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
+    -out /root/self.pem -keyout /root/self.pem && \
+    vncserver :1 -geometry 1280x720 -depth 24 && \
     websockify --web=/usr/share/novnc/ --cert=/root/self.pem 6080 localhost:5901"
