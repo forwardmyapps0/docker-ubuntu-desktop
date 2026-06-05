@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo gnupg curl wget nano neofetch \
     tigervnc-standalone-server tigervnc-common tigervnc-tools tigervnc-viewer \
     xfce4 xfce4-goodies dbus-x11 xauth \
-    novnc websockify python3 openssl
+    novnc websockify python3 openssl \
+    openjdk-21-jdk
 
 RUN install -d -m 0755 /etc/apt/keyrings && \
     wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O /etc/apt/keyrings/packages.mozilla.org.asc && \
