@@ -1,9 +1,6 @@
 FROM --platform=linux/amd64 ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV USER=root
-ENV VNC_PASSWORD=qwer1234
-ENV DISPLAY=:0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo gnupg curl wget nano neofetch \
