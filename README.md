@@ -26,10 +26,10 @@ docker build . -t docker-ubuntu-desktop
 ```
 
 ## Details zur Konfiguration
-* **Display:** `:0`
-* **VNC Port intern:** `5900`
-* **Web Port:** `6080`
-* **Passwort:** Das Passwort wurde während des Build-Prozesses in das Image geschrieben (`qwer1234`).
+* **NoVNC Port:** `6080`
+* **Minecraft Port:** `25565`
+* **SSH Port:** `22`
+* **WEB Port:** `8080`
 
 ## License
 MIT License (c) 2023 [Takahashi Akari](https://github.com/takahashi-akari)
