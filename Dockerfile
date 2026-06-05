@@ -5,7 +5,7 @@ ENV USER=root
 ENV VNC_PASSWORD=qwer1234
 ENV DISPLAY=:0
 
-EXPOSE 6080
+EXPOSE 6080 25565
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo gnupg curl wget nano neofetch \
