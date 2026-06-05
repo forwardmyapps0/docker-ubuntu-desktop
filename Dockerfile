@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo gnupg curl wget nano screen neofetch \
-    tigervnc-standalone-server tigervnc-common tigervnc-tools tigervnc-viewer \
+    tigervnc-standalone-server tigervnc-common tigervnc-tools \
     xfce4 xfce4-goodies dbus-x11 xauth \
     novnc websockify python3 openssl \
     openjdk-21-jdk
