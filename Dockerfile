@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     novnc websockify python3 openssl \
     openjdk-21-jdk
 
+# Firefox-Installation
 RUN install -d -m 0755 /etc/apt/keyrings && \
     wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O /etc/apt/keyrings/packages.mozilla.org.asc && \
     echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | tee /etc/apt/sources.list.d/mozilla.list > /dev/null && \
@@ -16,11 +17,12 @@ RUN install -d -m 0755 /etc/apt/keyrings && \
     apt-get update && apt-get install -y firefox
 
 RUN mkdir -p /root/.vnc && \
-    echo "$VNC_PASSWORD" | vncpasswd -f > /root/.vnc/passwd && \
-    chmod 600 /root/.vnc/passwd && \
     touch /root/.Xauthority
 
+# Passwort wird beim Container-Start gesetzt, basierend auf der Umgebungsvariable
 CMD bash -c " \
+    echo \"$VNC_PASSWORD\" | vncpasswd -f > /root/.vnc/passwd && \
+    chmod 600 /root/.vnc/passwd && \
     openssl req -new -x509 -days 365 -nodes \
     -subj '/C=DE/ST=None/L=None/O=None/CN=localhost' \
     -out /root/self.pem -keyout /root/self.pem && \
