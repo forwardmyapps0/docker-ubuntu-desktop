@@ -1,7 +1,7 @@
 services:
   nonvc-desktop-server:
     build: .
-    container_name: novnc_container
+    container_name: nonvc-desktop-server
     restart: always
     ports:
       - "6080:6080"
