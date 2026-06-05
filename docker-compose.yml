@@ -2,7 +2,7 @@ services:
   nonvc-desktop-server:
     build: .
     container_name: nonvc-desktop-server
-    restart: always
+    restart: unless-stopped
     ports:
       - "6080:6080"
       - "25565:25565"
