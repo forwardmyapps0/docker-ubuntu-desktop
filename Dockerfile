@@ -7,10 +7,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tigervnc-standalone-server tigervnc-common tigervnc-tools tigervnc-viewer \
     xfce4 xfce4-goodies dbus-x11 xauth \
     novnc websockify python3 openssl \
-    openjdk-21-jdk
-
-# Firefox-Installation
-RUN install -d -m 0755 /etc/apt/keyrings && \
+    openjdk-21-jdk && \
+    
+    install -d -m 0755 /etc/apt/keyrings && \
     wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O /etc/apt/keyrings/packages.mozilla.org.asc && \
     echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | tee /etc/apt/sources.list.d/mozilla.list > /dev/null && \
     echo 'Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000' | tee /etc/apt/preferences.d/mozilla && \
@@ -19,7 +18,6 @@ RUN install -d -m 0755 /etc/apt/keyrings && \
 RUN mkdir -p /root/.vnc && \
     touch /root/.Xauthority
 
-# Passwort wird beim Container-Start gesetzt, basierend auf der Umgebungsvariable
 CMD bash -c " \
     echo \"$VNC_PASSWORD\" | vncpasswd -f > /root/.vnc/passwd && \
     chmod 600 /root/.vnc/passwd && \
